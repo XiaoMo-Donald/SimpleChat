@@ -101,7 +101,13 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
         },
         /** 获取皮肤模板 */
         GetSkinsTemplate: function() {
-            var _skinTemplate = '<ul class="chat-panel-set-skins">';
+            var _skinTemplate = `
+                  <ul class="chat-panel-set-skins">
+                        <li class="select-skin select-skin-default" data-url="">
+                            <a href="javascript:">
+                                默认
+                            </a>
+                        </li> `;
             for (var i = 1; i <= 10; i++) {
                 var _index = i < 10 ? '0' + i : i;
                 _skinTemplate += `
