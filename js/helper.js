@@ -28,7 +28,7 @@ const chatSetting = {
         } else {
             _newOptions = $.extend(_options, options);
         }
-        storage.set('chatSettings', _options);
+        storage.set('chatSettings', _newOptions);
         this.render();
     },
     default: function() {
