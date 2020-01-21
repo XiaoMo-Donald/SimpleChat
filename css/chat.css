@@ -38,6 +38,9 @@
     top:0px;
     right:0px;
 }
+.chat-panel-tool-btns .layui-btn-group .layui-btn-primary:first-child{
+    border:0;
+}
 .chat-panel-tool-btns>.layui-btn-group>button{
     border:0;
     color:#555;
