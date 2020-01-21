@@ -353,7 +353,7 @@
     width: 100%;
     height: 100%;
 }
-
+ 
 .select-skin {
     border-radius: 5px;
 }
@@ -365,16 +365,16 @@
 .select-skin.active {
     border: 1px solid #ff80ab;
 }
-
+.select-skin-default,
 .upload-skin {
     text-align: center;
     line-height: 90px;
 }
-
+.select-skin-default>a,
 .upload-skin>a {
     background-color: #f2f2f2;
 }
-
+.select-skin-default>a,
 .upload-skin>a>i {
     font-size: 30px;
     color: #666;
