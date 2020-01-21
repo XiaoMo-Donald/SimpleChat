@@ -33,7 +33,25 @@
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
+.chat-panel-tool-btns{
+    position: absolute;
+    top:0px;
+    right:0px;
+}
+.chat-panel-tool-btns>.layui-btn-group>button{
+    border:0;
+    color:#555;
+}
+.chat-panel-tool-btns>.layui-btn-group>button:hover{
+    background-color: rgba(0,0,0,0.1);
+}
+.chat-panel-tool-btns>.layui-btn-group>button.chat-panel-tool-close-btn:hover{
+    color:red;
+}
 
+.chat-panel-tool-btns button>i{
+    font-size:20px!important;
+}
 .close-open-panel-btn {
     position: absolute;
     top: 50%;
@@ -373,8 +391,7 @@
 .select-skin-default>a,
 .upload-skin>a {
     background-color: #f2f2f2;
-}
-.select-skin-default>a,
+} 
 .upload-skin>a>i {
     font-size: 30px;
     color: #666;
