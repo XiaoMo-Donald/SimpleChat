@@ -177,73 +177,71 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
 
     /** 定义好友列表相关 */
     const chatPanel = {
-
+        GetMyInfo:function(){
+            $.ajax({
+                url:'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/GetFriendList',
+                type:'POST',
+                dataType:'json',
+                success:function(res){
+                    console.log(res); 
+                    $('.panel-head-avatar').attr('src',res.atavar);
+                    $('.panel-head-nickname>h3').text(res.nickname);
+                    $('.panel-head-description').text(res.description);
+                    $('.panel-head-description').attr('title',res.description);
+                },
+                fail:function(){
+                     console.log('请求出错');
+                } 
+             });
+        },
         GetFriends: function() {
               $.ajax({
                 url:'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/GetFriendList',
                 type:'POST',
                 dataType:'json',
                 success:function(res){
-                    console.log(res);
+                    console.log(res); 
+                    
+                    var _template = '';
+                    var _index = 0; //临时头像索引
+                    res.forEach(function(item, index) {
+                        var _userItemTemplate = '';
+                        item.list.forEach(function(litem, lindex) {  //真实数据
+                         //for (var l = 0; l < item.count; l++) { //模拟数据
+                            //_index += 1;
+                            _userItemTemplate += `
+                                <div class="chat-panel-user-item" data-userid="${litem.id}" title="${litem.nickname}">
+                                    <div class="panel-user-left">
+                                        <img class="avatar" src="${litem.avatar}" alt="${litem.nickname}的头像">
+                                    </div>
+                                    <div class="panel-user-right">
+                                        <h3>${litem.nickname}(<span>${litem.name}</span> )</h3>
+                                        <p>${litem.description}</p>
+                                    </div>
+                                </div> 
+                            `;
+                         //}
+                        });
+                        _template += `
+                            <div class="layui-colla-item">
+                                <h2 class="layui-colla-title">${item.groupname.trim()}<span class="chat-user-friend-count">(2/${item.count})</span></h2>
+                                <div class="layui-colla-content chat-panel-user-list">
+                                    ${_userItemTemplate}
+                                </div>
+                            </div> 
+                        `;
+                    })
+                    $('#UserFriendsList').html(_template);
+                    element.render();
+                    // _bindEvents.bindFriendsGroup();
+                    _bindEvents.bindShowMessage();
+                    
                 },
                 fail:function(){
                     console.log('请求出错');
                 }
             });
-            
-            var _friendGroups = [{
-                groupname: '我的好友',
-                count: 2,
-                list: [{
-
-                }]
-            }, {
-                groupname: '我的同学',
-                count: 2,
-                list: [{
-
-                }]
-            }, {
-                groupname: '我的老师',
-                count: 3,
-                list: [{
-
-                }]
-            }];
-
-            var _template = '';
-            var _index = 0; //临时头像索引
-            _friendGroups.forEach(function(item, index) {
-                var _userItemTemplate = '';
-                // item.list.forEach(function(litem, lindex) {  //真实数据
-                for (var l = 0; l < item.count; l++) { //模拟数据
-                    _index += 1;
-                    _userItemTemplate += `
-                        <div class="chat-panel-user-item" data-userid="${_index}" title="用户${_index}的昵称">
-                            <div class="panel-user-left">
-                                <img class="avatar" src="images/avatar/avatar_00${_index}.png" alt="">
-                            </div>
-                            <div class="panel-user-right">
-                                <h3>用户${_index}的备注(<span>用户${_index}的昵称</span> )</h3>
-                                <p>这是用户${_index}的个性签名啦啦啦啦啦啦啦啦</p>
-                            </div>
-                        </div> 
-                    `;
-                }
-                // });
-                _template += `
-                    <div class="layui-colla-item">
-                        <h2 class="layui-colla-title">${item.groupname.trim()}<span class="chat-user-friend-count">(2/${item.count})</span></h2>
-                        <div class="layui-colla-content chat-panel-user-list">
-                            ${_userItemTemplate}
-                        </div>
-                    </div> 
-                `;
-            })
-            $('#UserFriendsList').html(_template);
-            element.render();
-            // _bindEvents.bindFriendsGroup();
-            _bindEvents.bindShowMessage();
+           
         },
         GetGroups: function() {
 
@@ -255,6 +253,7 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
             var _this = this;
             var _chatPanelInitTimer = setTimeout(function() {
                 clearTimeout(_chatPanelInitTimer);
+                _this.GetMyInfo();
                 _this.GetFriends();
                 // _this.GetGroups();
                 // _this.GetMsgList();
