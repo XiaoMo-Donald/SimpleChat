@@ -97,7 +97,7 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
     const _dataSource = {
         /** 获取皮肤数据源 */
         GetSkins: function() {
-
+          
         },
         /** 获取皮肤模板 */
         GetSkinsTemplate: function() {
@@ -179,6 +179,18 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
     const chatPanel = {
 
         GetFriends: function() {
+              $.ajax({
+                url:'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/GetFriendList',
+                type:'POST',
+                dataType:'json',
+                success:function(res){
+                    console.log(res);
+                },
+                fail:function(){
+                    console.log('请求出错');
+                }
+            });
+            
             var _friendGroups = [{
                 groupname: '我的好友',
                 count: 2,
