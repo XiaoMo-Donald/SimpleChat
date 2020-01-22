@@ -179,7 +179,7 @@ layui.use(['element', 'layer', 'jquery', 'form'], function() {
     const chatPanel = {
         GetMyInfo:function(){
             $.ajax({
-                url:'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/GetFriendList',
+                url:'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/GetMyInfo',
                 type:'POST',
                 dataType:'json',
                 success:function(res){
