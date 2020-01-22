@@ -10,8 +10,7 @@
 .evan-chat-open-panel {
     position: fixed;
 /*     right: 0;
-    top: 0;
-    width: 300px;
+    top: 0; 
     height: 100%; */
     right:20px;
     bottom:20px; 
@@ -22,6 +21,9 @@
     background-color: #fff;
     border-radius: 4px;
     overflow: hidden;
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
     /* display: none; */
 }
 
