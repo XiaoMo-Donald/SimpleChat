@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="libs/layui/css/layui.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+        
+        .chatpanel {
+            padding: 20px;
+            padding-bottom: 10px;
+            padding-right: 50px;
+        }
+        
+        .chatpanel img.avatar {
+            width: 50px;
+            height: 50px;
+            box-sizing: border-box;
+            border-radius: 50%;
+        }
+        
+        .chatpanel h5.nickname {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .chatpanel textarea {
+            resize: none;
+        }
+        
+        .chatpanel .chat-default-btn,
+        .chatpanel .layui-form-select dl dd.layui-this,
+        .chatpanel .chat-addnewfriend-btn,
+        .chatpanel .chat-movefriendtogroup-btn {
+            background-color: #ff80ab;
+        }
+        
+        .chat-deleteconfirm .layui-layer-btn .layui-layer-btn0 {
+            background-color: #ff80ab;
+            border-color: #ff80ab;
+        }
+        
+        #ChatpanelAddNewFriend,
+        #ChatpanelMoveFriendToGroup {
+            overflow: initial;
+        }
+        
+        .chatpanel-addnewfriend-info,
+        .chatpanel-movefriendtogroup-info {
+            position: relative;
+            padding-left: 110px;
+            box-sizing: border-box;
+            overflow: hidden;
+            height: 60px;
+            line-height: 26px;
+        }
+        
+        .chatpanel-addnewfriend-info img.avatar,
+        .chatpanel-movefriendtogroup-info img.avatar {
+            position: absolute;
+            top: 0px;
+            left: 45px;
+        }
+        
+        .chatpanel-addnewgroup-upload {
+            overflow: hidden;
+            height: 50px;
+            line-height: 50px;
+            margin-bottom: 10px;
+        }
+        
+        .addnewgroup-upload-tip {
+            float: left;
+            width: 110px;
+            box-sizing: border-box;
+            padding: 0 15px;
+            text-align: right;
+        }
+        
+        .addnewgroup-upload-image {
+            float: left;
+            box-sizing: border-box;
+        }
+        
+        .addnewgroup-upload-image>img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        
+        #ChatpanelInviteJoinGroup {
+            height: auto!important;
+        }
+        
+        .chatpanel-invitejoingroup-container {
+            padding: 20px 50px;
+        }
+        
+        #InviteJoinGroupTemplate {
+            min-height: 80px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        #InviteJoinGroupTemplate>.layui-tree>.layui-tree-set>.layui-tree-entry>.layui-tree-main>.layui-tree-txt {
+            font-weight: 700;
+        }
+        
+        .chatpanel-invitejoingroup-btn {
+            text-align: center;
+            padding-top: 20px;
+        }
+        
+        .invitejoingroup-btn {
+            background-color: #ff80ab;
+        }
+        
+        .evancloseall-chatwindows {}
+        
+        .evancloseall-chatwindows>.layui-layer-title {
+            height: 20px;
+            line-height: initial;
+            padding-left: 5px;
+            border-bottom: 0!important;
+        }
+        
+        .evancloseall-chatwindows>.layui-layer-setwin {
+            right: 5px;
+            top: 5px;
+        }
+        
+        .evancloseall-chatwindows button {
+            width: 100%;
+            background-color: #ff80ab;
+            border-radius: 0!important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 添加群聊 -->
+
+    <div id="inviteJoinGroup">
+        <div class="chatpanel-invitejoingroup-container">
+            你好啊
+        </div>
+    </div>
+
+    <script src="libs/layui/layui.all.js "></script>
+    <script>
+        window.onload = function() {
+
+
+            layui.use(['jquery', 'layer', 'element', 'form', 'laypage', 'upload', 'tree', 'util'], function() {
+                let layer = layui.layer,
+                    $ = layui.jquery,
+                    form = layui.form,
+                    laypage = layui.laypage,
+                    upload = layui.upload,
+                    tree = layui.tree,
+                    util = layui.util,
+                    element = layui.element;
+
+                let _apiBaseUrl = 'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages';
+                /** 请求事件 */
+                const _TzRequest = {
+                    timer: null,
+                    /** 封装的 Promise 请求 */
+                    request: function(optinos) {
+                        let _options = {
+                            url: '',
+                            type: 'POST',
+                            data: {},
+                            dataType: 'json'
+                        };
+                        $.extend(_options, optinos);
+                        return new Promise((resolve, reject) => {
+                            $.ajax({
+                                url: _apiBaseUrl + _options.url,
+                                type: _options.type,
+                                data: _options.data,
+                                dataType: _options.dataType,
+                                success: function(res) {
+                                    resolve(res)
+                                },
+                                fail: function(err) {
+                                    reject(err)
+                                }
+                            })
+                        })
+                    }
+                };
+
+
+                /** 定义好友和分组的操作*/
+                const _chatPanelFriendAndFriendGroup = {
+                    lock: false, //请求锁
+                    addNewFriendGroupTemplate: function() {
+                        return `
+                            <div class="chatpanel chatpanel-addnewfriendtogroup-container">
+                                <form class="layui-form" action="">
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">分组名称</label>
+                                        <div class="layui-input-block ">
+                                            <input type="text " name="NewFriendGroupName " required lay-verify="required " placeholder="请输入新的分组名称... " autocomplete="off " class="layui-input ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button class="layui-btn chat-default-btn" lay-submit lay-filter="ChatAddNewFriendGroupNameBtn">确定添加</button>
+                                            <button type="button" class="layui-btn layui-btn-primary chat-cancel-btn cancel-addnewfriendgroupname-btn">取消添加</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        `;
+                    },
+                    addNewFriendTemplate: function() {
+                        return `
+                            <div class="chatpanel chatpanel-addnewfriend-container">
+                                <div class="chatpanel-addnewfriend-info">
+                                    <img class="avatar" src="images/avatar/avatar_002.png" alt=" ">
+                                    <div class=" ">
+                                        <h5 class="nickname">小鱼呆猫儿</h5>
+                                        <p>性别：<span>女生</span></p>
+                                    </div>
+                                </div>
+                                <form class="layui-form " action=" ">
+                                    <input type="hidden" value="002" name="AddNewFriendId">
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">备注姓名</label>
+                                        <div class="layui-input-block ">
+                                            <input type="text " name="NickName" required lay-verify="required " placeholder="请输入Ta的备注... " autocomplete="off " class="layui-input ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">选择分组</label>
+                                        <div class="layui-input-block ">
+                                            <select name="FriendGroupId " lay-verify=" " lay-search>
+                                                <option value="001 " selected>我的好友</option>
+                                                <option value="002 ">我的同学</option>
+                                                <option value="003 ">我的老师</option>
+                                                <option value="004 ">新的分组01</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item layui-form-text ">
+                                        <label class="layui-form-label ">验证信息</label>
+                                        <div class="layui-input-block ">
+                                            <textarea name="AddFriendDescription " placeholder="请输入验证信息 " class="layui-textarea "></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item ">
+                                        <div class="layui-input-block ">
+                                            <button class="layui-btn chat-addnewfriend-btn " lay-submit lay-filter="ChatAddNewFriend ">确定添加</button>
+                                            <button type="button " class="layui-btn layui-btn-primary chat-cancel-btn cancel-addnewfriend-btn ">取消添加</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        `;
+                    },
+                    moveToGroupTemplate: function() {
+                        return ` 
+                            <div class="chatpanel chatpanel-movefriendtogroup-container ">
+                                <div class="chatpanel-movefriendtogroup-info ">
+                                    <img class="avatar " src="images/avatar/avatar_002.png " alt=" ">
+                                    <div class=" ">
+                                        <h5 class="nickname "><span class="remarkname ">小呆猫</span>（<span class="old-nickname ">小鱼呆猫儿</span>）</h5>
+                                        <p>来自分组：<span>我的好友</span></p>
+                                    </div>
+                                </div>
+                                <form class="layui-form " action=" ">
+                                    <!-- 旧的分组Id -->
+                                    <input type="hidden " value="002 " name="MoveToGroupOldId ">
+                                    <!-- 好友的Id -->
+                                    <input type="hidden " value="002 " name="MoveToGroupFriendId ">
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">选择分组</label>
+                                        <div class="layui-input-block ">
+                                            <select name="FriendGroupId " lay-verify=" " lay-search>
+                                                <option value="001 " selected>我的好友</option>
+                                                <option value="002 ">我的同学</option>
+                                                <option value="003 ">我的老师</option>
+                                                <option value="004 ">新的分组01</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item ">
+                                        <div class="layui-input-block ">
+                                            <button class="layui-btn chat-movefriendtogroup-btn " lay-submit lay-filter="ChatMoveFriendToGroup ">确定移动</button>
+                                            <button type="button " class="layui-btn layui-btn-primary chat-cancel-btn cancel-movefriendtogroup-btn ">取消移动</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        `;
+                    },
+                    changeNicknameTemplate: function() {
+                        return `
+                            <div class="chatpanel chatpanel-changefriendnickname-container">
+                                <form class="layui-form" action="">
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">好友备注</label>
+                                        <div class="layui-input-block ">
+                                            <input type="text " name="NewFriendNickName " required lay-verify="required " placeholder="请输入新的好友备注... " autocomplete="off " class="layui-input ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button class="layui-btn chat-default-btn" lay-submit lay-filter="ChatChangeFriendNicknameBtn">确定修改</button>
+                                            <button type="button" class="layui-btn layui-btn-primary chat-cancel-btn cancel-changefriendnickname-btn">取消</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        `;
+                    },
+                    changeFriendGroupNameTemplate: function() {
+                        return `
+                            <div class="chatpanel chatpanel-changefriendgroupname-container">
+                                <form class="layui-form" action="">
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">好友备注</label>
+                                        <div class="layui-input-block ">
+                                            <input type="text " name="NewFriendGroupName " required lay-verify="required " placeholder="请输入新的分组名称... " autocomplete="off " class="layui-input ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button class="layui-btn chat-default-btn" lay-submit lay-filter="ChatpanelChangeFriendGroupNameBtn">确定修改</button>
+                                            <button type="button" class="layui-btn layui-btn-primary chat-cancel-btn cancel-changefriendgroupname-btn">取消</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        `;
+                    },
+                    addNewFriendGroup: function() {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-addnewfriendgroup',
+                            id: 'ChatpanelAddNewFriendGroup',
+                            title: '添加新的好友分组',
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.addNewFriendGroupTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatAddNewFriendGroupNameBtn)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    addNewFriend: function() {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-addnewfriend',
+                            id: 'ChatpanelAddNewFriend',
+                            title: '添加好友',
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.addNewFriendTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatAddNewFriend)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    moveToGroup: function() {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-movefriendtogroup',
+                            id: 'ChatpanelMoveFriendToGroup',
+                            title: '移动好友到分组',
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.moveToGroupTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatMoveFriendToGroup)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    /** 修改好友昵称*/
+                    changeNickname: function(userid) {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-changefriendnickname',
+                            id: 'ChatpanelChangeFriendNickname',
+                            title: `正在修改 ${userid} 的好友备注`,
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.changeNicknameTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelAddNewFriendBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelAddNewFriendBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatChangeFriendNicknameBtn)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    /** 修改分组名称*/
+                    changeFriendGroupName: function(groupid) {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-changefriendgroupname',
+                            id: 'ChatpanelChangeFriendGroupName',
+                            title: `正在修改 ${groupid} 的分组名称`,
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.changeFriendGroupNameTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelAddNewFriendBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelAddNewFriendBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatpanelChangeFriendGroupNameBtn)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    /** 删除好友*/
+                    deleteFriend: function(userid) {
+                        layer.confirm(`您确定要删除 ${userid} 吗？`, {
+                            skin: 'chat-deleteconfirm delete-friend',
+                            id: 'DeleteFriendGroup',
+                            btn: ['确认删除', '取消'], //按钮
+                            btnAlign: 'c',
+                            shade: 0 //不显示遮罩
+                        }, function() {
+                            layer.msg('删除成功', {
+                                icon: 1
+                            });
+                        }, function() {
+                            layer.msg('取消删除', {
+                                icon: 2
+                            });
+                        });
+                    },
+                    /** 删除好友分组*/
+                    deleteFriendGroup: function(groupid) {
+                        layer.confirm(`您确定要删除 ${groupid} 吗？`, {
+                            skin: 'chat-deleteconfirm delete-friendgroup',
+                            id: 'DeleteFriendGroup',
+                            btn: ['确认删除', '取消'], //按钮
+                            btnAlign: 'c',
+                            shade: 0 //不显示遮罩
+                        }, function() {
+                            layer.msg('删除成功', {
+                                icon: 1
+                            });
+                        }, function() {
+                            layer.msg('取消删除', {
+                                icon: 2
+                            });
+                        });
+                    },
+                    test: function() {
+                        //this.addNewFriend();
+                        //this.moveToGroup(); 
+                        // this.addNewFriendGroup(); 
+                        //this.changeFriendGroupName('我的朋友分组Id');
+                        // this.changeNickname('提拉米苏的呆猫儿的Id');
+                        this.deleteFriend('好友Id');
+                        // this.deleteFriendGroup('分组Id');
+                    }
+
+                };
+                // _chatPanelFriendAndFriendGroup.test();
+
+                /** 定义群聊相关*/
+                const _chatPanelGroup = {
+                    lock: false,
+                    addNewGroupTemplate: function() {
+                        return `
+                            <div class="chatpanel chatpanel-addnewgroup-container "> 
+                                <div class="layui-upload chatpanel-addnewgroup-upload"> 
+                                    <div class="addnewgroup-upload-tip">选择头像</div>
+                                    <div class="addnewgroup-upload-image">
+                                        <img class="layui-upload-img" title="选择群头像" src="images/icons/icon_new_group_avatar.png" id="NewGroupAvatar"> 
+                                    </div> 
+                                </div>
+                                <form class="layui-form" action=" "> 
+                                    <div class="layui-form-item ">
+                                        <label class="layui-form-label ">群聊名称</label>
+                                        <div class="layui-input-block ">
+                                            <input type="text " name="GroupName" required lay-verify="required " placeholder="请输入群聊名称... " autocomplete="off " class="layui-input ">
+                                        </div>
+                                    </div> 
+                                    <div class="layui-form-item layui-form-text ">
+                                        <label class="layui-form-label ">群聊描述</label>
+                                        <div class="layui-input-block ">
+                                            <textarea name="AddFriendDescription" placeholder="请输入群聊描述信息 " class="layui-textarea "></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item ">
+                                        <div class="layui-input-block ">
+                                            <button class="layui-btn chat-addnewfriend-btn " lay-submit lay-filter="ChatAddNewGroupBtn">确定创建</button>
+                                            <button type="button " class="layui-btn layui-btn-primary chat-cancel-btn cancel-addnewgroup-btn ">取消创建</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div> 
+                        `;
+                    },
+                    addNewGroup: function() {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-addnewgroup',
+                            id: 'ChatpanelAddNewGroup',
+                            title: '创建群聊（群聊）',
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: _this.addNewGroupTemplate(),
+                            success: function(layero) {
+
+                                let _$cancelBtn = $(layero[0]).find('.chat-cancel-btn');
+
+                                _$cancelBtn.off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+
+                                //选完文件后不自动上传
+                                let _uploadInst = upload.render({
+                                    elem: '#NewGroupAvatar',
+                                    url: 'https://httpbin.org/post', //改成您自己的上传接口  
+                                    before: function(obj) {
+                                        obj.preview(function(index, file, result) {
+                                            $('#NewGroupAvatar').attr('src', result); //图片链接（base64）
+                                        });
+                                    },
+                                    done: function(res) {
+                                        layer.msg('上传成功');
+                                        console.log(res)
+                                    },
+                                    error: function() {
+                                        //演示失败状态，并实现重传
+                                        // var demoText = $('#demoText');
+                                        // demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                        // demoText.find('.demo-reload').on('click', function() {
+                                        //     _uploadInst.upload();
+                                        // });
+                                        console.log('上传失败');
+                                    }
+                                });
+
+                                form.render();
+                                //监听提交
+                                form.on('submit(ChatAddNewGroupBtn)', function(data) {
+                                    if (!_this.lock) {
+                                        _this.lock = true;
+                                        layer.msg(JSON.stringify(data.field));
+
+
+                                        let _timer = setTimeout(() => {
+                                            clearTimeout(_timer);
+                                            _this.lock = false;
+                                        }, 1500);
+                                    }
+
+                                    return false;
+                                });
+                            }
+                        })
+                    },
+                    deleteGroup: function(groupid) {
+                        layer.confirm(`您确定要解散 ${groupid} 群聊吗？`, {
+                            title: '提醒',
+                            skin: 'chat-deleteconfirm delete-group',
+                            id: 'DeleteGroup',
+                            btn: ['确认解散', '取消'], //按钮
+                            btnAlign: 'c',
+                            shade: 0 //不显示遮罩
+                        }, function() {
+                            // _TzRequestEvents.request({
+                            //     url: '/api/DeleteGroupById',
+                            //     type: 'POST',
+                            //     data: {
+                            //         GroupId: groupid
+                            //     },
+                            //     dataType: 'json',
+                            // }).then(res => {
+                            //     // console.log('Promise:');
+                            //     // console.log(res);
+                            //     layer.msg('解散成功', {
+                            //         icon: 1
+                            //     });
+                            // }).catch(err => {
+                            //     console.log(err);
+                            // })
+                            layer.msg('解散成功', {
+                                icon: 1
+                            });
+                        }, function() {
+                            layer.msg('取消解散', {
+                                icon: 2
+                            });
+                        });
+                    },
+                    joinGroup: function(groupid) {
+
+                    },
+                    inviteJoinGroup: function(groupid) {
+                        let _this = this;
+                        layer.open({
+                            type: 1,
+                            skin: 'chatpanel-invitejoingroup',
+                            id: 'ChatpanelInviteJoinGroup',
+                            title: `邀请好友加入 ${groupid} 群聊`,
+                            shadeClose: false,
+                            shade: 0,
+                            area: ['450px'],
+                            resize: false,
+                            content: `
+                                <div class="chatpanel-invitejoingroup-container">
+                                    <div id="InviteJoinGroupTemplate">邀请好友加入群聊列表</div>
+                                    <div class="chatpanel-invitejoingroup-btn">
+                                        <button type="button" class="layui-btn invitejoingroup-btn" tz-event="getChecked">确认邀请</button>
+                                        <button type="button" class="layui-btn layui-btn-primary cancel-invitejoingroup-btn">关闭</button>
+                                    </div> 
+                                </div>`,
+                            success: function(layero) {
+                                $(layero[0]).find('.cancel-invitejoingroup-btn').off('click').on('click', function() {
+                                    layer.close($(layero[0]).attr('times'));
+                                });
+                                $.ajax({
+                                    url: 'https://www.fastmock.site/mock/992387632827a42b26d0a126c2acdea5/ChatPages/api/InviteFriendsJoinGroup',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    success: function(res) {
+                                        // console.log(res)
+                                        tree.render({
+                                            elem: '#InviteJoinGroupTemplate',
+                                            id: 'InviteJoinGroupTree',
+                                            data: res,
+                                            // accordion: true,
+                                            showLine: false, //是否开启连接线
+                                            showCheckbox: true,
+                                            click: function(obj) {
+                                                console.log(obj)
+                                                if (!obj.data.isGroup) {
+
+                                                    if (!_this.lock) {
+                                                        _this.lock = true;
+
+                                                        layer.msg(JSON.stringify(obj.data));
+                                                        //TODO：显示好友详细信息
+
+                                                        setTimeout(() => {
+                                                            _this.lock = false;
+                                                        }, 1500);
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        util.event('tz-event', {
+                                            getChecked: function(othis) {
+                                                if (!_this.lock) {
+                                                    _this.lock = true;
+                                                    let _checkedData = tree.getChecked('InviteJoinGroupTree'); //获取选中节点的数据
+                                                    let _InviteJoinGroupFriens = [];
+                                                    console.log(_checkedData);
+                                                    _checkedData.forEach((item, index) => {
+                                                        item.children.forEach((item2, index2) => {
+                                                            console.log(item2)
+                                                            _InviteJoinGroupFriens.push(item2);
+                                                        })
+                                                    })
+                                                    console.log(_InviteJoinGroupFriens);
+                                                    if (_InviteJoinGroupFriens.length <= 0) {
+                                                        layer.msg('没有选择任何好友!');
+                                                        _this.lock = false;
+                                                        return;
+                                                    }
+                                                    _TzRequest.request({
+                                                        url: '/api/Todo',
+                                                        type: 'POST',
+                                                        dataType: 'json',
+                                                    }).then(res => {
+                                                        console.log(res);
+                                                        layer.msg('邀请好友加入群聊成功!');
+                                                        _this.lock = false;
+                                                        layer.close($(layero[0]).attr('times'));
+                                                    }).catch(err => {
+                                                        console.log(err);
+                                                    })
+                                                }
+                                            }
+                                        });
+                                    }
+                                })
+
+                            }
+                        });
+                    },
+                    outGroup: function(groupid) {
+                        layer.confirm(`您确定要退出 ${groupid} 群聊吗？`, {
+                            skin: 'chat-deleteconfirm out-group',
+                            id: 'OutGroup',
+                            btn: ['确认退出', '取消'], //按钮
+                            btnAlign: 'c',
+                            shade: 0 //不显示遮罩
+                        }, function() {
+                            layer.msg('退出成功', {
+                                icon: 1
+                            });
+                        }, function() {
+                            layer.msg('取消退出', {
+                                icon: 2
+                            });
+                        });
+                    },
+                    moveOutGroup: function(userid, groupid) {
+                        layer.confirm(`您确定将 ${userid} 移出 ${groupid} 群聊吗？`, {
+                            skin: 'chat-deleteconfirm moveout-group',
+                            id: 'MoveOutGroup',
+                            btn: ['确认移出', '取消'], //按钮
+                            btnAlign: 'c',
+                            shade: 0 //不显示遮罩
+                        }, function() {
+                            layer.msg('移出成功', {
+                                icon: 1
+                            });
+                        }, function() {
+                            layer.msg('取消移出', {
+                                icon: 2
+                            });
+                        });
+                    },
+
+                    test: function() {
+                        // this.addNewGroup();
+                        // this.deleteGroup();
+                        this.inviteJoinGroup();
+                    }
+                };
+                // _chatPanelGroup.test();
+
+
+                layer.open({
+                    type: 1,
+                    id: 'EvanCloseAllChatWindows',
+                    skin: 'evancloseall-chatwindows', //样式类名 
+                    anim: 2,
+                    title: '关闭',
+                    shadeClose: false, //开启遮罩关闭
+                    content: `
+                        <button class="layui-btn evan-close-all-chatwindows-btn" title="点我就能关闭" id="EvanCloseAllChatWindowsBtn">点我就能关闭</button>
+                    `,
+                    success: function(layero) {
+                        $('#EvanCloseAllChatWindowsBtn').off('click').on('click', function(e) {
+                            layer.closeAll();
+                        });
+                    }
+                });
+
+            })
+
+
+        }
+    </script>
+</body>
+
+</html>
