@@ -7,194 +7,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Chat</title>
+    <title>简单的仿QQ聊天界面Web版本</title>
 
-    <link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css" /> -->
+    <link rel="stylesheet" href="libs/layui/css/layui.css">
     <link rel="stylesheet" href="libs/icons/iconfont.css">
-    <link rel="stylesheet" href="css/chatPanel.css">
-
+    <link rel="stylesheet" href="libs/live2d/css/live2d.css" />
+    <link rel="stylesheet" href="css/chatPanel_v2.css">
+    <link rel="stylesheet" href="libs/emoji/lib/css/jquery.mCustomScrollbar.min.css">
+    <link rel="stylesheet" href="libs/emoji/dist/css/jquery.emoji.css">
+    <style>
+        a.evan-chat-utils {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ff80ab;
+            padding: 10px 0;
+            color: #ffffff;
+            display: inline-block;
+            box-sizing: border-box;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        a.evan-chat-utils>i {
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
 
     <!-- 右下角展开按钮 -->
-    <div class="evan-chat-open-panel-btn">
+    <!-- <div class="evan-chat-open-panel-btn">
         <button type="button" class="layui-btn" id="OpenChatPanelBtn">展开面板</button>
-    </div>
+    </div> -->
+    <a href="javascript:" class="evan-chat-utils" id="EvanChatPanelUtils" title="显示工具箱"><i class="layui-icon layui-icon-right"></i></a>
 
-
-    <div id="EvanChatPanel">
-        <!-- 右侧展开面板 -->
-        <div class="evan-chat-open-panel">
-            <div class="chat-open-panel-content" id="ChatOpenPanelContent">
-                <div class="close-open-panel-btn" title="收起">
-                    <i class="layui-icon layui-icon-right"></i>
-                </div>
-                <div class="chat-panel-tool-btns">
-                    <div class="layui-btn-group">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-xs chat-panel-tool-min-btn"
-                            title="最小化">
-                            <i class="layui-icon layui-icon-subtraction"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-xs chat-panel-tool-close-btn"
-                            title="关闭">
-                            <i class="layui-icon layui-icon-close"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="chat-panel-head">
-                    <div class="panel-head-left">
-                        <img class="panel-head-avatar" src="images/avatar/avatar_001.png" alt="">
-                    </div>
-                    <div class="panel-head-right">
-                        <div class="panel-head-nickname">
-                            <h3>提拉米苏的呆猫</h3>
-                        </div>
-                        <div class="panel-head-description" title="成功捕获一只正在Coding的呆猫">
-                            成功捕获一只正在Coding的呆猫！
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-panel-body">
-                    <div class="panel-body-search">
-                        <i class="layui-icon layui-icon-search panel-search-icon"></i>
-                        <input type="text" name="SearchKey" placeholder="搜索好友、群组..." autocomplete="off"
-                            class="layui-input">
-                        <i class="layui-icon layui-icon-close panel-search-clear-icon" title="取消"></i>
-                    </div>
-                    <div class="layui-tab layui-tab-brief panel-body-tab" lay-filter="docDemoTabBrief">
-                        <ul class="layui-tab-title">
-                            <li class="layui-this">我的好友</li>
-                            <li>群组</li>
-                            <li>消息</li>
-                        </ul>
-                        <div class="layui-tab-content">
-                            <div class="layui-tab-item layui-show panel-body-friends-item">
-                                <div class="layui-collapse" id="UserFriendsList" lay-accordion>
-                                    <div class="layui-colla-item">
-                                        <h2 class="layui-colla-title">新朋友 <span
-                                                class="chat-user-friend-count">(2/30)</span></h2>
-                                        <div class="layui-colla-content chat-panel-user-list layui-show ">
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_002.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_003.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="layui-colla-item">
-                                        <h2 class="layui-colla-title">我的同学 <span
-                                                class="chat-user-friend-count">(2/30)</span></h2>
-                                        <div class="layui-colla-content chat-panel-user-list">
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_004.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_005.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="layui-colla-item">
-                                        <h2 class="layui-colla-title">我的老师 <span
-                                                class="chat-user-friend-count">(2/30)</span></h2>
-                                        <div class="layui-colla-content chat-panel-user-list">
-                                            <div class="chat-panel-user-item" title="用户昵称" data-userid="">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_006.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_007.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                            <div class="chat-panel-user-item" data-userid="" title="用户昵称">
-                                                <div class="panel-user-left">
-                                                    <img class="avatar" src="images/avatar/avatar_007.png" alt="">
-                                                </div>
-                                                <div class="panel-user-right">
-                                                    <h3>用户的备注(<span>用户昵称啦</span> )</h3>
-                                                    <p>这是用户的个性签名啦~~~~~~~~</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="layui-tab-item panel-body-group-item">
-                                群聊分组
-                            </div>
-                            <div class="layui-tab-item panel-body-msglist-item">
-                                消息列表
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-panel-foot">
-                    <div class="layui-btn-group">
-                        <button type="button" title="菜单" class="layui-btn layui-btn-primary panel-foot-func-btn"
-                            data-funcid="menu">
-                            <i class="layui-icon layui-icon-spread-left"></i>
-                        </button>
-                        <button type="button" title="设置" class="layui-btn layui-btn-primary panel-foot-func-btn"
-                            data-funcid="setting">
-                            <i class="layui-icon layui-icon-set-sm"></i>
-                        </button>
-                        <button type="button" title="添加好友" class="layui-btn layui-btn-primary panel-foot-func-btn"
-                            data-funcid="addfriend">
-                            <i class="layui-icon layui-icon-add-circle"></i>
-                        </button>
-                        <button type="button" title="消息盒子" class="layui-btn layui-btn-primary panel-foot-func-btn"
-                            data-funcid="msgbox">
-                            <i class="layui-icon layui-icon-dialogue"></i>
-                        </button>
-                        <button type="button" title="设置皮肤" class="layui-btn layui-btn-primary panel-foot-func-btn"
-                            data-funcid="skins">
-                            <span class="iconfont icon-pifuguanli"></span>
-                        </button>
-                    </div>
-                </div>
+    <div id="landlord" style="left:5px;bottom:0px;">
+        <div class="message" style="opacity:0"></div>
+        <canvas id="live2d" width="500" height="560" class="live2d"></canvas>
+        <div class="live_talk_input_body">
+            <div class="live_talk_input_name_body">
+                <input name="name" type="text" class="live_talk_name white_input" id="AIuserName" autocomplete="off" placeholder="你的名字" />
+            </div>
+            <div class="live_talk_input_text_body">
+                <input name="talk" type="text" class="live_talk_talk white_input" id="AIuserText" autocomplete="off" placeholder="要和我聊什么呀？" />
+                <button type="button" class="live_talk_send_btn" id="talk_send">发送</button>
             </div>
         </div>
+        <input name="live_talk" id="live_talk" value="1" type="hidden" />
+        <div class="live_ico_box">
+            <div class="live_ico_item type_info" id="showInfoBtn"></div>
+            <div class="live_ico_item type_talk" id="showTalkBtn"></div>
+            <div class="live_ico_item type_music" id="musicButton"></div>
+            <div class="live_ico_item type_youdu" id="youduButton"></div>
+            <div class="live_ico_item type_quit" id="hideButton"></div>
+            <input name="live_statu_val" id="live_statu_val" value="0" type="hidden" />
+            <audio src="" style="display:none;" id="live2d_bgm" data-bgm="0" preload="none"></audio>
+            <input name="live2dBGM" value="https://sharefs.yun.kugou.com/202001261509/41bb99222a588c9f9c79a201d6a7ab79/G148/M09/0C/0D/1A0DAFviWPyAX0NVAELJjAwqF7U759.mp3" type="hidden">
+            <input name="live2dBGM" value="https://sharefs.yun.kugou.com/202001261510/bc475af7a684d06d8c6d907e2b3fcc5b/G128/M00/00/15/YJQEAFshAGWATgqWADsWsyIy9VY070.mp3" type="hidden">
+            <input id="duType" value="douqilai,l2d_caihong" type="hidden">
+        </div>
     </div>
+    <div id="open_live2d">召唤伊斯特瓦尔</div>
+    <!-- <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script> -->
+    <!-- <script src="https://www.layuicdn.com/layui/layui.js"></script> -->
+    <script src="libs/jquery.min.js"></script>
+    <script src="libs/layui/layui.all.js"></script>
+    <script>
+        var resource_path = ""; //也是资源目录 针对于model的资源目录
+        var message_Path = '/libs/live2d/'; //资源目录，如果目录不对请更改
+        var talkAPI = ""; //如果有类似图灵机器人的聊天接口请填写接口路径
+    </script>
+    <script type="text/javascript" src="libs/live2d/js/live2d.js"></script>
+    <script type="text/javascript" src="libs/live2d/js/message.js"></script>
+    <script type="text/javascript" src="js/datetimeUtils.js"></script>
 
-    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://www.layuicdn.com/layui/layui.js"></script>
-    <script src="js/helper.js"></script>
-    <script src="js/chatPanel.js"></script>
+    <script type="text/javascript" src="js/helper.js"></script>
+    <script type="text/javascript" src="js/chatPanel_v2.js"></script>
+    <script src="libs/emoji/lib/script/jquery.mousewheel-3.0.6.min.js"></script>
+    <script src="libs/emoji/lib/script/jquery.mCustomScrollbar.js"></script>
+    <script src="libs/emoji/src/js/jquery.emoji.js"></script>
+    <script>
+        window.onload = function() {
+            const _chatPanel = new TzChatPanel({
+                debug: false, //调试
+                // button: '#OpenChatPanelBtn'
+            });
+
+
+        }
+    </script>
 </body>
 
 </html>
