@@ -1,10 +1,10 @@
 # ChatDemoPages
-基于Layui实现的仿QQ客户端聊天面板
+基于Layui简答实现的仿QQ客户端聊天面板
 
 
 # 预览地址
 
-[预览](https://evan925.github.io/ChatDemoPages/chat.html)
+[预览](https://evan925.github.io/ChatDemoPages/index_v2.html)
 
 
 
