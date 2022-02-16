@@ -5,7 +5,7 @@
 
 # 预览地址
 
-[预览](http://chat-page.925i.cn)
+[预览](https://xiaomodonnie.github.io/SimpleChat/)
 
 
 
